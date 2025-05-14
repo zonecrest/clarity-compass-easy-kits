@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Problem Refiner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1259a1;
+      --accent: #0092ca;
+      --accent2: #00c8d4;
+      --highlight: #72faca;
+      --highlight2: #F2AA2A;
+      --font-main: 'Inter', sans-serif;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: #ffffff;
+      padding: 2rem;
+      color: #333;
+      max-width: 640px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .description {
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      color: #444;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 1.25rem;
+      margin-bottom: 0.4rem;
+      color: var(--primary);
+    }
+
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-family: var(--font-main);
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      font-size: 1rem;
+      font-family: var(--font-main);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--accent2);
+    }
+
+    .output {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: var(--highlight);
+      border-left: 5px solid var(--highlight2);
+      font-size: 1rem;
+      white-space: pre-wrap;
+      display: none;
+      border-radius: 4px;
+      font-family: var(--font-main);
+    }
+
+    .error {
+      margin-top: 1.5rem;
+      color: #b00020;
+      font-weight: 500;
+      font-family: var(--font-main);
+    }
+  </style>
+</head>
+<body>
+  <h1>Refine the Real Customer Problem</h1>
+  <div class="description">
+    Tell us how your customer describes their problem. Our AI assistant will help you clarify and deepen your understanding.
+  </div>
+
+  <form id="refiner-form">
+    <label for="userId">Your Email</label>
+    <input type="email" id="userId" name="userId" required placeholder="you@yourdomain.com" />
+
+    <label for="problemDescription">What is the customer problem?</label>
+    <textarea id="problemDescription" name="problemDescription" rows="6" required placeholder="e.g. Customers abandon sign-up after step 2..."></textarea>
+
+    <button type="submit">Refine Problem</button>
+  </form>
+
+  <div id="output" class="output"></div>
+  <div id="error" class="error"></div>
+
+  <script>
+    const form = document.getElementById("refiner-form");
+    const output = document.getElementById("output");
+    const error = document.getElementById("error");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      output.style.display = "none";
+      error.textContent = "";
+
+      const userId = document.getElementById("userId").value.trim();
+      const problem = document.getElementById("problemDescription").value.trim();
+
+      try {
+        const res = await fetch("https://zonecrest.app.n8n.cloud/webhook-test/refiner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, problemDescription: problem }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.message || "Something went wrong.");
+        }
+
+        const data = await res.json();
+        const result = data.message || data.content || data.data?.[0]?.message?.content || JSON.stringify(data);
+        output.textContent = result;
+        output.style.display = "block";
+      } catch (err) {
+        error.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>
