@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Problem Refiner – Step 1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1259a1;
+      --accent: #0092ca;
+      --accent2: #00c8d4;
+      --highlight: #72faca;
+      --highlight2: #F2AA2A;
+      --font-main: 'Inter', sans-serif;
+    }
+    body {
+      font-family: var(--font-main);
+      background: #fff;
+      padding: 2rem;
+      color: #333;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 1.6rem;
+      color: var(--primary);
+    }
+    label {
+      display: block;
+      margin-top: 1.4rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    textarea {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-family: var(--font-main);
+    }
+    button {
+      margin-top: 2rem;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: var(--accent2);
+    }
+    .output, .error {
+      margin-top: 2rem;
+      white-space: pre-wrap;
+      font-size: 1rem;
+    }
+    .output {
+      background-color: var(--highlight);
+      border-left: 4px solid var(--highlight2);
+      padding: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+    .error {
+      color: #b00020;
+    }
+  </style>
+</head>
+<body>
+  <h1>Refine Your Customer Problem</h1>
+  <form id="step1-form">
+    <input type="hidden" id="userId" name="userId" />
+
+    <label for="symptom">1. My customers struggle with...</label>
+    <textarea id="symptom" name="symptom" rows="3" required></textarea>
+
+    <label for="cause">2. This is likely happening because...</label>
+    <textarea id="cause" name="cause" rows="3" required></textarea>
+
+    <label for="consequence">3. If they don’t solve this, they’ll...</label>
+    <textarea id="consequence" name="consequence" rows="3" required></textarea>
+
+    <button type="submit">Request Review</button>
+  </form>
+
+  <div id="output" class="output"></div>
+  <div id="error" class="error"></div>
+
+  <script>
+    const form = document.getElementById("step1-form");
+    const output = document.getElementById("output");
+    const error = document.getElementById("error");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const user = urlParams.get("user") || "unknown";
+    document.getElementById("userId").value = user;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      output.style.display = "none";
+      error.textContent = "";
+
+      const payload = {
+        userId: user,
+        symptom: document.getElementById("symptom").value.trim(),
+        cause: document.getElementById("cause").value.trim(),
+        consequence: document.getElementById("consequence").value.trim()
+      };
+
+      try {
+        const res = await fetch("https://your-n8n-domain.com/webhook/problem-review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Unexpected error");
+
+        const data = await res.json();
+        const content = data.content || data.result || JSON.stringify(data);
+        output.textContent = content;
+        output.style.display = "block";
+      } catch (err) {
+        error.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Problem Refiner – Step 2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1259a1;
+      --accent: #0092ca;
+      --accent2: #00c8d4;
+      --highlight: #72faca;
+      --highlight2: #F2AA2A;
+      --font-main: 'Inter', sans-serif;
+    }
+    body {
+      font-family: var(--font-main);
+      background: #fff;
+      padding: 2rem;
+      color: #333;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 1.6rem;
+      color: var(--primary);
+    }
+    p.helper {
+      font-size: 0.95rem;
+      margin-top: -0.5rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-top: 1.4rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    textarea {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-family: var(--font-main);
+    }
+    button {
+      margin-top: 2rem;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: var(--accent2);
+    }
+    .output, .error {
+      margin-top: 2rem;
+      white-space: pre-wrap;
+      font-size: 1rem;
+    }
+    .output {
+      background-color: var(--highlight);
+      border-left: 4px solid var(--highlight2);
+      padding: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+    .error {
+      color: #b00020;
+    }
+  </style>
+</head>
+<body>
+  <h1>Refine Your Clarity Statement</h1>
+  <p class="helper">“Many [your audience] struggle with [pain], caused by [cause], which leads to [consequence].”</p>
+
+  <form id="step2-form">
+    <input type="hidden" id="userId" name="userId" />
+    <label for="statement">Your draft clarity statement</label>
+    <textarea id="statement" name="statement" rows="4" required></textarea>
+
+    <button type="submit">Request Review</button>
+  </form>
+
+  <div id="output" class="output"></div>
+  <div id="error" class="error"></div>
+
+  <script>
+    const form = document.getElementById("step2-form");
+    const output = document.getElementById("output");
+    const error = document.getElementById("error");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const user = urlParams.get("user") || "unknown";
+    document.getElementById("userId").value = user;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      output.style.display = "none";
+      error.textContent = "";
+
+      const payload = {
+        userId: user,
+        statement: document.getElementById("statement").value.trim()
+      };
+
+      try {
+        const res = await fetch("https://your-n8n-domain.com/webhook/positioning-review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Unexpected error");
+
+        const data = await res.json();
+        const content = data.content || data.result || JSON.stringify(data);
+        output.textContent = content;
+        output.style.display = "block";
+      } catch (err) {
+        error.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>
