@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +9,7 @@
     :root {
       --primary: #1259a1;
       --accent: #0092ca;
+      --accent2: #00c8d4;
       --highlight: #72faca;
       --highlight2: #F2AA2A;
       --font-main: 'Inter', sans-serif;
@@ -45,10 +45,19 @@
       border-radius: 5px;
     }
 
-    .footer {
+    button {
       margin-top: 2rem;
-      font-size: 0.9rem;
-      color: #777;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: var(--accent2);
     }
   </style>
 </head>
@@ -60,6 +69,12 @@
     You're ready to move on to the next phase of the journey.
   </div>
 
-  <p class="footer">This window can be closed. Continue in Notion when you're ready.</p>
+  <button id="continue-button">Click to Continue</button>
+
+  <script>
+    document.getElementById("continue-button").addEventListener("click", function() {
+      window.location.href = "https://www.notion.so/2-2-Testing-Your-Solution-1f573dcb8ea680b9bb56fc0ea040a266?pvs=13";
+    });
+  </script>
 </body>
 </html>
